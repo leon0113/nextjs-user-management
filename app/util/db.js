@@ -1,17 +1,5 @@
 export const users = [
   {
-    "id": "9",
-    "name": "Isabella Lopez",
-    "age": 24,
-    "email": "isabella@example.com"
-  },
-  {
-    "id": "10",
-    "name": "Jack Thompson",
-    "age": 31,
-    "email": "jack@example.com"
-  },
-  {
     "id": "11",
     "name": "Katherine Clark",
     "age": 28,
@@ -120,19 +108,7 @@ export const users = [
     "email": "david@example.com"
   },
   {
-    "id": "545",
-    "name": "Miaaa Ramiiirez",
-    "age": 26,
-    "email": "miaaaa@example.com"
-  },
-  {
     "id": "5245",
-    "name": "Miaaa Ramiiirez",
-    "age": 26,
-    "email": "miaaaa@example.com"
-  },
-  {
-    "id": "100",
     "name": "Miaaa Ramiiirez",
     "age": 26,
     "email": "miaaaa@example.com"
@@ -146,18 +122,6 @@ export const users = [
   {
     "id": "10131",
     "name": "Miaaa Ramiiirez",
-    "age": 26,
-    "email": "miaaaa@example.com"
-  },
-  {
-    "id": "2011111",
-    "name": "Miaaa Leon",
-    "age": 26,
-    "email": "miaaaa@example.com"
-  },
-  {
-    "id": "201116",
-    "name": "Miaaa Leon",
     "age": 26,
     "email": "miaaaa@example.com"
   }
