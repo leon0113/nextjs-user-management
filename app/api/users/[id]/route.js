@@ -1,82 +1,60 @@
-import { users } from "@/app/util/db"
+import { users } from "@/app/util/db.js";
 import { NextResponse } from "next/server";
-import fs from 'fs';
+import fs from "fs";
 
-
-//! get specific User Data
+//! 2. Get Specific User
 export async function GET(_, res) {
     const { id } = await res.params;
-    const user = users.filter((user) => user.id === id);
-    return NextResponse.json({ user })
-}
+    const user = users.filter((u) => u.id === id);
 
-//! login 
-export async function POST(req, res) {
-    let { name, age, email } = await req.json();
-    const { id } = await res.params;
-
-    const { name: userName, email: userEmail, age: userAge } = users.find((user) => user.id === id);
-
-    if (userName === name && userEmail === email && userAge === age) {
-        return NextResponse.json({ result: "User successfully logged in" });
-    } else if (!name || !email || !age) {
-        return NextResponse.json({ result: "please fill all the inputs" })
+    if (user.length > 0) {
+        return NextResponse.json({ user }, { status: 200 });
     } else {
-        return NextResponse.json({ result: `The provided credentials did not match our records.` })
+        return NextResponse.json({ result: "Not found" }, { status: 400 });
     }
 }
 
-
-//! Update User
-export async function PUT(req, res) {
-    let { name, age, email } = await req.json();
+//! 3. LOGIN
+export async function POST(req, res) {
+    let { name, email, age } = await req.json();
     const { id } = await res.params;
 
-    // find user from db 
-    const userIndex = users.findIndex((user) => user.id === id);
-    if (userIndex === -1) {
-        return NextResponse.json({ message: "User not found" }, { status: 200 });
-    }
+    const {
+        name: uName,
+        email: uEmail,
+        age: uAge,
+    } = users.find((u) => u.id === id);
 
-    if (name) {
-        users[userIndex].name = name;
+    if (uName === name && uEmail === email && uAge === age) {
+        return NextResponse.json({ result: "Successfully Logged In" });
+    } else if (!name || !email || !age) {
+        return NextResponse.json({ result: "Please fill all the inputs fields" });
+    } else {
+        NextResponse.json({ result: "Invalid Credeintials" });
     }
-    if (age) {
-        users[userIndex].age = age;
-    }
-    if (email) {
-        users[userIndex].email = email;
-    }
-
-    const updatedUsersArray = users;
-    // convert updated users array to JSON string
-    const updatedData = JSON.stringify(updatedUsersArray, null, 2);
-
-    // write the updated  users array to a JSON string
-    fs.writeFileSync('./app/util/db.js', `export const users = ${updatedData}`, 'utf-8');
-
-    return NextResponse.json({ message: "User updated successfully!" }, { status: 200 });
 }
 
-
-//! Delete User
+//! 6. Delete User
 export async function DELETE(req, res) {
     const { id } = await res.params;
-    // find user from db 
+
+    // Find the index of the user to delete in the users array
     const userIndex = users.findIndex((user) => user.id === id);
+
     if (userIndex === -1) {
-        return NextResponse.json({ message: "User not found" }, { status: 400 });
+        return NextResponse.json({ result: "User not found" }, { status: 404 });
     }
 
-    // remove user from users array
+    // Remove the user from the users array
     users.splice(userIndex, 1);
-    // update file
-    const updatedUsersArray = users;
-    // convert updated users array to JSON string
-    const updatedData = JSON.stringify(updatedUsersArray, null, 2);
 
-    // write the updated  users array to a JSON string
-    fs.writeFileSync('./app/util/db.js', `export const users = ${updatedData}`, 'utf-8');
+    // Update the user data in the db.js file
+    updateUserData();
 
-    return NextResponse.json({ message: "User deleted successfully!" }, { status: 200 });
+    return NextResponse.json({ success: "User Successfully Deleted" });
+}
+
+function updateUserData() {
+    const updatedData = `export const users = ${JSON.stringify(users, null, 2)};`;
+    fs.writeFileSync("./app/util/db.js", updatedData, "utf-8");
 }

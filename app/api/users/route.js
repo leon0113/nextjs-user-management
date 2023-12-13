@@ -1,37 +1,80 @@
-import { users } from "@/app/util/db"
+import { users } from "@/app/util/db.js";
 import { NextResponse } from "next/server";
-import fs from 'fs';
+import fs from "fs";
 
-// All Users Data
+//! 1. All User Data
 export function GET() {
     const data = users;
-    return NextResponse.json({ data }, { status: 200 })
+    return NextResponse.json({ data }, { status: 200 });
 }
 
-// Create User
+//! 4. Create User
 export async function POST(req, res) {
-    let { id, name, age, email } = await req.json();
+    // Getting Data From User
+    let { id, name, email, age } = await req.json();
 
-    if (!id || !name || !age || !email) {
-        return NextResponse.json({ result: "Please provide all info" }, { status: 400 });
+    // Checking If the data is provided
+    if (!name || !email || !age) {
+        return NextResponse.json(
+            { result: "required field not found" },
+            { status: 400 }
+        );
     } else if (users.find((user) => user.id === id)) {
         return NextResponse.json({ result: "user allReady exists" }, { status: 400 });
-    } else {
-        // add new user
-        users.push({ id, name, age, email });
+    }
+    else {
+        // Add the new user to the in-memory array
+        users.unshift({ id, name, email, age });
 
+        // Extract just the users array from the updated data
         const updatedUsersArray = users;
-        // convert updated users array to JSON string
+
+        // Convert the updated users array to a JSON string
         const updatedData = JSON.stringify(updatedUsersArray, null, 2);
 
-        // write the updated  users array to a JSON string
-        fs.writeFileSync('./app/util/db.js', `export const users = ${updatedData}`, 'utf-8');
+        // Write the updated data back to the db.js file
+        fs.writeFileSync(
+            "./app/util/db.js",
+            `export const users = ${updatedData};`,
+            "utf-8"
+        );
 
-        return NextResponse.json({ message: "User created successfully!" }, { status: 200 });
-
+        return NextResponse.json({ success: "User Successfully Created" });
     }
-
 }
 
+//! 5. Update User
+export async function PUT(req, res) {
+    const { id, name, email, age } = await req.json();
 
+    // Find the user in the users array by ID
+    const userIndex = users.findIndex((user) => user.id === id);
 
+    if (userIndex === -1) {
+        return NextResponse.json({ result: "User not found" }, { status: 404 });
+    }
+
+    if (name) {
+        users[userIndex].name = name;
+    }
+
+    if (email) {
+        users[userIndex].email = email;
+    }
+
+    if (age) {
+        users[userIndex].age = age;
+    }
+
+    // Update the user data in the db.js file
+    const updatedUsersArray = users;
+    const updatedData = JSON.stringify(updatedUsersArray, null, 2);
+
+    fs.writeFileSync(
+        "./app/util/db.js",
+        `export const users = ${updatedData};`,
+        "utf-8"
+    );
+
+    return NextResponse.json({ success: "User Successfully Updated" });
+}
